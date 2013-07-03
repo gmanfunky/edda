@@ -88,7 +88,7 @@ object AwsCrawler {
 
 /** specialized [[com.netflix.edda.BeanMapper]] trait that can suppress specific AWS resource tags
   * based on patterns expressed in the config.  This is necessary in case people add tags to
-  * resources that change frequenly (like timestamps).  The AwsBeanMapper trait also works around
+  * resources that change frequently (like timestamps).  The AwsBeanMapper trait also works around
   * some internal state exposed in the bean for [[com.amazonaws.services.ec2.model.InstanceState]]
   * *code* field.
   */

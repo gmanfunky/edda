@@ -30,7 +30,7 @@ class RecordTest extends FunSuite {
     val data = 1
     val tags = Map[String, Any]()
 
-    val expected = new Record("id", ctime, stime, ltime, mtime, data, tags)
+    val expected = new Record("id", null, ctime, stime, ltime, mtime, data, tags)
     val expectedJson = expected.toString
 
     expectResult(expectedJson) {
@@ -50,18 +50,18 @@ class RecordTest extends FunSuite {
     }
 
     expectResult(expectedJson) {
-      Record("id", date, date, null, date, 1, Map()).toString
+      Record("id", null, date, date, null, date, 1, Map()).toString
     }
 
     expectResult(true) {
-      expected.sameData(Record("id", date, date, null, date, 1, Map()))
+      expected.sameData(Record("id", null, date, date, null, date, 1, Map()))
     }
   }
 
   test("toMap") {
     val date = new DateTime(1)
-    val rec = Record("id", date, date, null, date, 1, Map())
-    val map = Map("id" -> "id", "ctime" -> date, "stime" -> date, "ltime" -> null, "mtime" -> date, "data" -> 1, "tags" -> Map())
+    val rec = Record("id", null, date, date, null, date, 1, Map())
+    val map = Map("id" -> "id", "account" -> null, "ctime" -> date, "stime" -> date, "ltime" -> null, "mtime" -> date, "data" -> 1, "tags" -> Map())
     expectResult(map) {
       rec.toMap
     }

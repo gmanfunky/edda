@@ -24,6 +24,7 @@ object Record {
     val now = DateTime.now
     new Record(
       id = id,
+      account = null,
       ctime = now,
       stime = now,
       ltime = null,
@@ -37,6 +38,7 @@ object Record {
     val now = DateTime.now
     new Record(
       id = id,
+      account = null,
       ctime = ctime,
       stime = now,
       ltime = null,
@@ -48,26 +50,24 @@ object Record {
   /** allows Record to be constructed like a case class */
   def apply(
              id: String,
+             account: String,
              ctime: DateTime,
              stime: DateTime,
              ltime: DateTime,
              mtime: DateTime,
              data: Any,
-             tags: Map[String, Any]) = new Record(id, ctime, stime, ltime, mtime, data, tags)
+             tags: Map[String, Any]) = new Record(id, account, ctime, stime, ltime, mtime, data, tags)
 }
 
 /** simple record object that can be treated like a case class.
   *
   * @param id name of the resource, unique identifier
-  * @param ctime original time the record was created
-  * @param stime last state change time
-  * @param ltime last seen time (time when record expired)
-  * @param mtime last modified time for the record
   * @param data the record data, what is returned by default for the REST interface
   * @param tags arbitrary tags can be applied to the record for internal use
   */
 class Record(
               val id: String,
+              val account: String,
               val ctime: DateTime,
               val stime: DateTime,
               val ltime: DateTime,
@@ -78,17 +78,19 @@ class Record(
   /** copy to behave similar to case class */
   def copy(
             id: String = id,
+            account: String = account,
             ctime: DateTime = ctime,
             stime: DateTime = stime,
             ltime: DateTime = ltime,
             mtime: DateTime = mtime,
             data: Any = data,
-            tags: Map[String, Any] = tags) = new Record(id, ctime, stime, ltime, mtime, data, tags)
+            tags: Map[String, Any] = tags) = new Record(id, account, ctime, stime, ltime, mtime, data, tags)
 
   /** flatten object into basic scala map */
   def toMap = {
     Map(
       "id" -> id,
+      "account" -> account,
       "ctime" -> ctime,
       "stime" -> stime,
       "ltime" -> ltime,
@@ -107,7 +109,7 @@ class Record(
   /** compare this record to another and return true if the data is identical */
   def sameData(that: Record): Boolean = {
     if (that == null) return false
-    this.data == that.data || this.dataString == that.dataString
+    (this.data == that.data || this.dataString == that.dataString) && this.account == that.account
   }
 
   /** make logging easier, serialize the Record to json */

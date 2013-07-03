@@ -23,6 +23,9 @@ import java.util.concurrent.TimeUnit
 import com.netflix.servo.monitor.Monitors
 
 import org.slf4j.LoggerFactory
+import scala.collection.mutable.ArrayBuffer
+import com.netflix.edda.aws._
+import com.netflix.edda.CrawlerState
 
 /** local state for Crawlers
   *
@@ -130,12 +133,103 @@ abstract class Crawler extends Observable {
       logger.info("{} Crawled {} records in {} sec", toObjects(
         this, newRecords.size, stopwatch.getDuration(TimeUnit.MILLISECONDS) / 1000D -> "%.2f"))
       crawlCounter.increment(newRecords.size)
+
+      val newRecordsWithAccountName = ArrayBuffer.empty[Record]
       Observable.localState(state).observers.foreach(o => {
-          val msg = Crawler.CrawlResult(this, newRecords)
+        //insert accountName into each record.
+        // TODO: clean up this ugly hack. We need to find a way to apply this to all collections. Maybe move the field to the abstract class?
+
+        newRecords.foreach(aRecord => {
+          newRecordsWithAccountName += {
+          o match {
+            case col : AwsAddressCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsAlarmCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsAutoScalingGroupCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsBucketCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsDatabaseCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsHostedRecordCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsHostedZoneCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsIamGroupCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsIamRoleCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsIamUserCollection=> {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsIamVirtualMFADeviceCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsImageCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsInstanceCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsInstanceHealthCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsLaunchConfigurationCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsLoadBalancerCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsReservationCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsReservedInstanceCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsScalingPolicyCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsSecurityGroupCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsSimpleQueueCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsSnapshotCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsTagCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            case col : AwsVolumeCollection => {
+              new Record(aRecord.id, col.accountName, aRecord.ctime, aRecord.stime, aRecord.ltime, aRecord.mtime, aRecord.data, aRecord.tags)
+            }
+            // TODO: How can i abstract this?
+            case _ => {
+              aRecord
+            }
+          }
+        }
+      })
+
+          //val msg = Crawler.CrawlResult(this, newRecords)
+          val msg = Crawler.CrawlResult(this, newRecordsWithAccountName)
           logger.debug(this + " sending: " + msg + " -> " + o)
           o ! msg
       })
-      setLocalState(state, CrawlerState(records = newRecords))
+
+      setLocalState(state, CrawlerState(records = newRecordsWithAccountName))
+      //setLocalState(state, CrawlerState(records = newRecords))
 
       // } else state
     }

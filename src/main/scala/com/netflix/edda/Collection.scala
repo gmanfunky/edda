@@ -273,10 +273,11 @@ abstract class Collection(val ctx: Collection.Context) extends Queryable {
     )
 
     // need to reset stime, ctime, tags for crawled records to match what we have in memory
+    // TODO: comment says reset stime, ctime, but below deals with mtime, stime
     val fixedRecords = newRecords.collect {
       case rec: Record if changes.contains(rec.id) => {
         val newRec = changes(rec.id).newRecord
-        oldMap(rec.id).copy(data = rec.data, mtime = newRec.mtime, stime = newRec.stime)
+        oldMap(rec.id).copy(data = rec.data, account = newRec.account, mtime = newRec.mtime, stime = newRec.stime)
       }
       case rec: Record if oldMap.contains(rec.id) =>
         oldMap(rec.id).copy(data = rec.data, mtime = rec.mtime)

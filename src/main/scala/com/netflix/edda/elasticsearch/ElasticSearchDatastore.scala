@@ -55,6 +55,10 @@ object ElasticSearchDatastore {
       case o: java.util.Map[_,_] =>
         Record(
           Option(o.get("id")).getOrElse(o.get("_id")).asInstanceOf[String],
+          Option(o.get("account")) match {
+            case Some(account: String) => new String(account)
+            case None => null
+          },
           Option(o.get("ctime")) match {
             case Some(date:String) => basicDateTime.parseDateTime(date)
             case None => null

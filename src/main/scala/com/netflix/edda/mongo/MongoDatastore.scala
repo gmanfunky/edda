@@ -48,6 +48,10 @@ object MongoDatastore {
       case o: BasicDBObject =>
         Record(
           Option(o.get("id")).getOrElse(o.get("_id")).asInstanceOf[String],
+          Option(o.get("account")) match {
+            case Some(account: String) => new String(account)
+            case None => null
+          },
           new DateTime(o.get("ctime").asInstanceOf[Date]),
           new DateTime(Option(o.get("stime")).getOrElse(o.get("ctime")).asInstanceOf[Date]),
           Option(o.get("ltime")) match {
